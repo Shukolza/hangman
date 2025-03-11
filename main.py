@@ -1,20 +1,31 @@
 #!/usr/bin/python3
-
 import os
+import sys
 import webbrowser
 import random
 import colorama
+from colorama import Fore
+
+def resource_path(relative_path):
+    """Get a correct file path for compiled EXE"""
+    try:
+        # Temp folder for PyInstaller
+        base_path = sys._MEIPASS
+    except AttributeError:
+        # Standard mode (launched via Python)
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
 
 try:
     import pygame
-
     pygame.mixer.init()
-    error_sound = pygame.mixer.Sound("sounds/error.mp3")
-    choose_sound = pygame.mixer.Sound("sounds/choose.mp3")
-    game_over_sound = pygame.mixer.Sound('sounds/game_over.mp3')
-    win_sound = pygame.mixer.Sound('sounds/win.wav')
+    error_sound = pygame.mixer.Sound(resource_path("sounds/error.mp3"))
+    choose_sound = pygame.mixer.Sound(resource_path("sounds/choose.mp3"))
+    game_over_sound = pygame.mixer.Sound(resource_path('sounds/game_over.mp3'))
+    win_sound = pygame.mixer.Sound(resource_path('sounds/win.wav'))
     sound_enabled = True
-except:
+except Exception as e:
+    print(e)
     sound_enabled = False
 
 try:
@@ -24,182 +35,28 @@ except ModuleNotFoundError:
     dev_code = "IMPORT_FAILED"
 
 dev_mode = False
+colorama.init()
 
-words = [
-    "computer",
-    "person",
-    "cat",
-    "dog",
-    "house",
-    "car",
-    "book",
-    "tree",
-    "phone",
-    "table",
-    "chair",
-    "city",
-    "country",
-    "river",
-    "mountain",
-    "ocean",
-    "sky",
-    "sun",
-    "moon",
-    "star",
-    "flower",
-    "grass",
-    "bird",
-    "fish",
-    "lion",
-    "tiger",
-    "elephant",
-    "monkey",
-    "snake",
-    "rabbit",
-    "horse",
-    "cow",
-    "sheep",
-    "pig",
-    "chicken",
-    "duck",
-    "goat",
-    "frog",
-    "bear",
-    "wolf",
-    "fox",
-    "whale",
-    "shark",
-    "dolphin",
-    "penguin",
-    "kangaroo",
-    "zebra",
-    "giraffe",
-    "crocodile",
-    "turtle",
-    "butterfly",
-    "bee",
-    "ant",
-    "spider",
-    "apple",
-    "banana",
-    "orange",
-    "grape",
-    "strawberry",
-    "watermelon",
-    "potato",
-    "tomato",
-    "onion",
-    "carrot",
-    "bread",
-    "cheese",
-    "milk",
-    "coffee",
-    "tea",
-    "juice",
-    "water",
-    "paper",
-    "pen",
-    "pencil",
-    "notebook",
-    "clock",
-    "watch",
-    "camera",
-    "mirror",
-    "lamp",
-    "door",
-    "window",
-    "key",
-    "lock",
-    "shirt",
-    "pants",
-    "shoes",
-    "hat",
-    "socks",
-    "jacket",
-    "umbrella",
-    "bag",
-    "wallet",
-    "money",
-    "bank",
-    "school",
-    "hospital",
-    "park",
-    "road",
-    "bridge",
-    "train",
-    "bus",
-    "plane",
-    "ship",
-    "rocket",
-    "satellite",
-    "internet",
-    "website",
+WORDS = [
+    "computer", "person", "cat", "dog", "house", "car", "book", "tree",
+    "phone", "table", "chair", "city", "country", "river", "mountain",
+    "ocean", "sky", "sun", "moon", "star", "flower", "grass", "bird",
+    "fish", "lion", "tiger", "elephant", "monkey", "snake", "rabbit",
+    "horse", "cow", "sheep", "pig", "chicken", "duck", "goat", "frog",
+    "bear", "wolf", "fox", "whale", "shark", "dolphin", "penguin",
+    "kangaroo", "zebra", "giraffe", "crocodile", "turtle", "butterfly",
+    "bee", "ant", "spider", "apple", "banana", "orange", "grape",
+    "strawberry", "watermelon", "potato", "tomato", "onion", "carrot",
+    "bread", "cheese", "milk", "coffee", "tea", "juice", "water",
+    "paper", "pen", "pencil", "notebook", "clock", "watch", "camera",
+    "mirror", "lamp", "door", "window", "key", "lock", "shirt",
+    "pants", "shoes", "hat", "socks", "jacket", "umbrella", "bag",
+    "wallet", "money", "bank", "school", "hospital", "park", "road",
+    "bridge", "train", "bus", "plane", "ship", "rocket", "satellite",
+    "internet", "website"
 ]
 
-
-def rainbow_text(text):
-    """Get rainbow text"""
-    colors = [
-        colorama.Fore.RED,
-        colorama.Fore.YELLOW,
-        colorama.Fore.GREEN,
-        colorama.Fore.CYAN,
-        colorama.Fore.BLUE,
-        colorama.Fore.MAGENTA,
-    ]
-
-    result = ""
-    for i, char in enumerate(text):
-        color = colors[i % len(colors)]
-        result += f"{color}{char}"
-
-    return result + colorama.Style.RESET_ALL
-
-
-def color_text(text, color):
-    """
-    Returns colored text
-
-    :param text: String that needs to be colored
-    :param color: Color name ('red', 'blue', 'green', etc.)
-    :return: Colored text
-    """
-
-    color_map = {
-        "red": colorama.Fore.RED,
-        "green": colorama.Fore.GREEN,
-        "yellow": colorama.Fore.YELLOW,
-        "blue": colorama.Fore.BLUE,
-        "magenta": colorama.Fore.MAGENTA,
-        "cyan": colorama.Fore.CYAN,
-        "white": colorama.Fore.WHITE,
-        "black": colorama.Fore.BLACK,
-        "reset": colorama.Fore.RESET,  # Color reset
-    }
-
-    selected_color = color_map.get(color.lower(), colorama.Fore.RESET)
-
-    return f"{selected_color}{text}{colorama.Style.RESET_ALL}"
-
-
-def clear():
-    os.system("cls" if os.name == "nt" else "clear")
-
-
-def find_all_occurancies(a: list, element):
-    """returns list of indexes of all occurancies of element in list"""
-    indices = [i for i, x in enumerate(a) if x == element]
-    return indices
-
-
-def at_least_one_match(list1: list, list2: list):
-    for i in list1:
-        if i in list2:
-            return True
-    return False
-
-
-hangman_stadies_prints = [
+HANGMAN_STAGES = [
     """
       |
       |
@@ -276,184 +133,209 @@ hangman_stadies_prints = [
     |         |
     |         |
     |_________|
-""",
+"""
 ]
 
+def rainbow_text(text):
+    colors = [
+        Fore.RED, Fore.YELLOW, Fore.GREEN,
+        Fore.CYAN, Fore.BLUE, Fore.MAGENTA
+    ]
+    return ''.join(colors[i % len(colors)] + char 
+                  for i, char in enumerate(text)) + Fore.RESET
 
-# 8 attempts
+def color(text, color_name):
+    color_map = {
+        'red': Fore.RED,
+        'green': Fore.GREEN,
+        'yellow': Fore.YELLOW,
+        'blue': Fore.BLUE,
+        'magenta': Fore.MAGENTA,
+        'cyan': Fore.CYAN,
+        'white': Fore.WHITE,
+        'black': Fore.BLACK
+    }
+    return color_map.get(color_name.lower(), Fore.WHITE) + text + Fore.RESET
+
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 def main_menu():
-    global dev_mode
     while True:
-        clear()
+        clear_screen()
         print(rainbow_text("========== Hangman! =========="))
-        print(
-            """
+        print("""
              O 👋
             /|/
              |
             / \\
-        """
-        )
+        """)
         if dev_mode:
             print(rainbow_text("Dev Mode: ON"))
-            print('Sound +' if sound_enabled else "Sound -")
+            print(f"Sound: {'✓' if sound_enabled else '✗'}")
         print("[1] Start game")
         print("[2] Exit")
         print("[3] Contact developer")
-        choice = input("Choose an option >>>")
-        if choice == "1":
+        
+        choice = input("Choose an option >>> ").strip()
+        
+        if choice == '1':
             if sound_enabled:
                 choose_sound.play()
-            game()
-        elif choice == "2":
+            play_game()
+        elif choice == '2':
             if sound_enabled:
                 choose_sound.play()
             print("Goodbye!")
             break
-        elif choice == "3":
+        elif choice == '3':
             if sound_enabled:
                 choose_sound.play()
-            clear()
-            print("[1] Contact developer")
-            print("[2] Enable developer mode")
-            choice = input("Choose an option >>>")
-            if choice == "1":
-                if sound_enabled:
-                    choose_sound.play()
-                webbrowser.open("t.me/shukolza", 2)
-                print("Or via email: shukolza@gmail.com")
-                input("Press Enter to continue...")
-            elif choice == "2":
-                if sound_enabled and dev_code != "IMPORT_FAILED":
-                    choose_sound.play()
-                if dev_code == "IMPORT_FAILED":
-                    if sound_enabled:
-                        error_sound.play()
-                    print("Developer mode is not available.")
-                    input("Press Enter to continue...")
-                else:
-                    code = getpass(">>>")
-                    if code == dev_code:
-                        dev_mode = True
-                        if sound_enabled:
-                            choose_sound.play()
-                        print("Developer mode enabled.")
-                        input("Press Enter to continue...")
-                    else:
-                        if sound_enabled:
-                            error_sound.play()
-                        print("Incorrect code.")
-                        input("Press Enter to continue...")
-            else:
-                if sound_enabled:
-                    error_sound.play()
-                print("Invalid choice. Please try again.")
-                input("Press Enter to continue...")
-                continue
+            handle_developer_options()
         else:
             if sound_enabled:
                 error_sound.play()
             print("Invalid choice. Please try again.")
             input("Press Enter to continue...")
 
+def handle_developer_options():
+    clear_screen()
+    print("[1] Contact developer")
+    print("[2] Enable developer mode")
+    choice = input("Choose an option >>> ").strip()
+    
+    if choice == '1':
+        webbrowser.open("https://t.me/shukolza", new=2)
+        print("Or via email: shukolza@gmail.com")
+        input("Press Enter to continue...")
+    elif choice == '2':
+        handle_dev_mode_activation()
+    else:
+        if sound_enabled:
+            error_sound.play()
+        print("Invalid choice. Please try again.")
+        input("Press Enter to continue...")
 
-def game_over(correct_word: str) -> None:
-    clear()
-    if sound_enabled:
-        game_over_sound.play()
-    print(color_text("========== GAME OVER ==========", "red"))
-    print(hangman_stadies_prints[-1])
-    print()
-    print(f"Correct word: {correct_word}")
-    print()
-    input("Press Enter to return to main menu...")
-    if sound_enabled:
-        game_over_sound.stop()
-        choose_sound.play()
-
-
-def winner(correct_word: str) -> None:
-    clear()
-    if sound_enabled:
-        win_sound.play()
-    print(color_text("""========== YOU WON ==========""", "green"))
-    print()
-    print(
-        """
-             O 🏆
-            /|/
-             |
-            / \\
-        """
-    )
-    print()
-    print(f"Correct word: {correct_word}")
-    print()
-    input("Press Enter to return to main menu...")
-    if sound_enabled:
-        choose_sound.play()
-
-
-def game():
+def handle_dev_mode_activation():
     global dev_mode
-    current_correct_word = random.choice(words)
-    current_correct_word_without_found = list(current_correct_word)
-    spent_attempts_counter = 0
-    current_attempts_amount = len(hangman_stadies_prints)
-    current_word_mask = "_ " * len(current_correct_word)
-    excluded_letters = []
-    while True:
-        letters_to_be_excluded = []
-        if spent_attempts_counter == current_attempts_amount - 1:
-            game_over(current_correct_word)
-            break
-        clear()
-        print(rainbow_text("========== Game =========="))
-        if dev_mode:
-            print(current_correct_word)
-        print()
-        print(hangman_stadies_prints[spent_attempts_counter])
-        print()
-        print("Word:")
-        print(current_word_mask)
-        print()
-        print(f"Excluded letters: \n{';'.join(excluded_letters)}")
-        print()
-        user_suggestion = input("Your suggestion? >>>").lower()
+    if dev_code == "IMPORT_FAILED":
+        print("Developer mode unavailable")
+        input("Press Enter to continue...")
+        return
+        
+    code = getpass("Enter developer code: ")
+    if code == dev_code:
+        dev_mode = True
+        print("Developer mode enabled!")
         if sound_enabled:
             choose_sound.play()
+    else:
+        print("Incorrect code!")
+        if sound_enabled:
+            error_sound.play()
+    input("Press Enter to continue...")
 
-        if at_least_one_match(list(user_suggestion), excluded_letters):
-            print("You already tried one of these letters!")
-            input("Press Enter to continue...")
+def play_game():
+    word = random.choice(WORDS)
+    guessed_letters = set()
+    excluded_letters = []
+    attempts = 0
+    max_attempts = len(HANGMAN_STAGES) - 1
+    
+    while True:
+        clear_screen()
+        print(rainbow_text("========== Game =========="))
+        if dev_mode:
+            print(f"Debug: {word}")
+        
+        print(color(f"Remaining attempts: {max_attempts - attempts}", "cyan"))
+        print(HANGMAN_STAGES[attempts])
+        print("\nWord: " + create_word_mask(word, guessed_letters))
+        print(f"\nExcluded letters: {', '.join(excluded_letters)}")
+        
+        guess = input("\nYour guess (letter or full word): ").lower().strip()
+        
+        if not guess.isalpha():
+            handle_invalid_input()
             continue
-
-        flag = False
-        for symbol in user_suggestion:
-            if symbol in current_correct_word:
-                tmp = current_word_mask.split()
-                for occurance in find_all_occurancies(
-                    current_correct_word_without_found, symbol
-                ):
-                    tmp[occurance] = symbol
-                for occurance in find_all_occurancies(
-                    current_correct_word_without_found, symbol
-                ):
-                    current_correct_word_without_found[occurance] = ""
-                current_word_mask = " ".join(tmp)
-                flag = True
-            else:
-                letters_to_be_excluded.append(symbol)
-
-        excluded_letters.extend(list(set(letters_to_be_excluded)))
-
-        # check if it's any unrevealed symbols
-        if "_" not in current_word_mask.split():
-            winner(current_correct_word)
+        
+        if len(guess) == len(word):
+            handle_full_word_guess(guess, word, guessed_letters)
             break
-        elif not flag:
-            spent_attempts_counter += 1
+        
+        handle_letter_guess(guess, word, guessed_letters, excluded_letters)
+        
+        if is_word_guessed(word, guessed_letters):
+            show_winner(word)
+            break
+            
+        if not any(c in word for c in guess if c not in excluded_letters):
+            attempts += 1
+            if attempts >= max_attempts:
+                show_game_over(word)
+                break
 
+def create_word_mask(word, guessed_letters):
+    return ' '.join([c if c in guessed_letters else '_' for c in word])
+
+def handle_invalid_input():
+    print("Please enter only letters (a-z)!")
+    if sound_enabled:
+        error_sound.play()
+    input("Press Enter to continue...")
+
+def handle_full_word_guess(guess, word, guessed_letters):
+    if guess == word:
+        guessed_letters.update(word)
+        show_winner(word)
+    else:
+        print("Incorrect word guess!")
+        if sound_enabled:
+            error_sound.play()
+        input("Press Enter to continue...")
+
+def handle_letter_guess(guess, word, guessed_letters, excluded_letters):
+    for symbol in guess:
+        if symbol in excluded_letters or symbol in guessed_letters:
+            print(f"'{symbol}' was already guessed!")
+            continue
+            
+        if symbol in word:
+            guessed_letters.add(symbol)
+            if sound_enabled:
+                choose_sound.play()
+        else:
+            excluded_letters.append(symbol)
+            if sound_enabled:
+                error_sound.play()
+
+def is_word_guessed(word, guessed_letters):
+    return all(c in guessed_letters for c in word)
+
+def show_winner(word):
+    clear_screen()
+    print(color("========== YOU WON! ==========", "green"))
+    print("""
+         O 🏆
+        /|/
+         |
+        / \\
+    """)
+    print(f"The word was: {word}")
+    if sound_enabled:
+        win_sound.play()
+    input("\nPress Enter to return to menu...")
+
+def show_game_over(word):
+    clear_screen()
+    print(color("========== GAME OVER ==========", "red"))
+    print(HANGMAN_STAGES[-1])
+    print(f"\nThe word was: {word}")
+    if sound_enabled:
+        game_over_sound.play()
+    input("\nPress Enter to return to menu...")
+    if sound_enabled:
+        game_over_sound.stop()
 
 if __name__ == "__main__":
     main_menu()
