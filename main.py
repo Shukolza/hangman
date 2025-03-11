@@ -1,6 +1,9 @@
+#!/usr/bin/python3
+
 import os
 import webbrowser
 import random
+import colorama
 
 try:
     from secret import dev_code
@@ -122,6 +125,51 @@ words = [
 ]
 
 
+def rainbow_text(text):
+    """Get rainbow text"""
+    colors = [
+        colorama.Fore.RED,
+        colorama.Fore.YELLOW,
+        colorama.Fore.GREEN,
+        colorama.Fore.CYAN,
+        colorama.Fore.BLUE,
+        colorama.Fore.MAGENTA,
+    ]
+
+    result = ""
+    for i, char in enumerate(text):
+        color = colors[i % len(colors)]
+        result += f"{color}{char}"
+
+    return result + colorama.Style.RESET_ALL
+
+
+def color_text(text, color):
+    """
+    Returns colored text
+
+    :param text: String that needs to be colored
+    :param color: Color name ('red', 'blue', 'green', etc.)
+    :return: Colored text
+    """
+
+    color_map = {
+        "red": colorama.Fore.RED,
+        "green": colorama.Fore.GREEN,
+        "yellow": colorama.Fore.YELLOW,
+        "blue": colorama.Fore.BLUE,
+        "magenta": colorama.Fore.MAGENTA,
+        "cyan": colorama.Fore.CYAN,
+        "white": colorama.Fore.WHITE,
+        "black": colorama.Fore.BLACK,
+        "reset": colorama.Fore.RESET,  # Color reset
+    }
+
+    selected_color = color_map.get(color.lower(), colorama.Fore.RESET)
+
+    return f"{selected_color}{text}{colorama.Style.RESET_ALL}"
+
+
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
@@ -225,7 +273,7 @@ def main_menu():
     global dev_mode
     while True:
         clear()
-        print("========== Hangman! ==========")
+        print(rainbow_text("========== Hangman! =========="))
         print(
             """
              O 👋
@@ -274,6 +322,34 @@ def main_menu():
             input("Press Enter to continue...")
 
 
+def game_over(correct_word: str) -> None:
+    clear()
+    print(color_text("========== GAME OVER ==========", "red"))
+    print(hangman_stadies_prints[-1])
+    print()
+    print(f"Correct word: {correct_word}")
+    print()
+    input("Press Enter to return to main menu...")
+
+
+def winner(correct_word: str) -> None:
+    clear()
+    print(color_text("""========== YOU WON ==========""", "green"))
+    print()
+    print(
+        """
+             O 🏆
+            /|/
+             |
+            / \\
+        """
+    )
+    print()
+    print(f"Correct word: {correct_word}")
+    print()
+    input("Press Enter to return to main menu...")
+
+
 def game():
     global dev_mode
     current_correct_word = random.choice(words)
@@ -285,11 +361,10 @@ def game():
     while True:
         letters_to_be_excluded = []
         if spent_attempts_counter == current_attempts_amount - 1:
-            # TODO game_over()
-            print("G_O")
-            pass
+            game_over(current_correct_word)
+            break
         clear()
-        print("========== Game ==========")
+        print(rainbow_text("========== Game =========="))
         if dev_mode:
             print(current_correct_word)
         print()
@@ -310,14 +385,11 @@ def game():
         flag = False
         for symbol in user_suggestion:
             if symbol in current_correct_word:
-                # current_word_mask = current_word_mask[current_correct_word.index(symbol)] = symbol
                 tmp = current_word_mask.split()
-                # tmp[current_correct_word_without_found.index(symbol)] = symbol
                 for occurance in find_all_occurancies(
                     current_correct_word_without_found, symbol
                 ):
                     tmp[occurance] = symbol
-                # current_correct_word_without_found[current_correct_word_without_found.index(symbol)] = ''
                 for occurance in find_all_occurancies(
                     current_correct_word_without_found, symbol
                 ):
@@ -331,9 +403,8 @@ def game():
 
         # check if it's any unrevealed symbols
         if "_" not in current_word_mask.split():
-            # TODO winner()
-            print("WIN")
-            pass
+            winner(current_correct_word)
+            break
         elif not flag:
             spent_attempts_counter += 1
 
