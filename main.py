@@ -6,6 +6,18 @@ import random
 import colorama
 
 try:
+    import pygame
+
+    pygame.mixer.init()
+    error_sound = pygame.mixer.Sound("sounds/error.mp3")
+    choose_sound = pygame.mixer.Sound("sounds/choose.mp3")
+    game_over_sound = pygame.mixer.Sound('sounds/game_over.mp3')
+    win_sound = pygame.mixer.Sound('sounds/win.wav')
+    sound_enabled = True
+except:
+    sound_enabled = False
+
+try:
     from secret import dev_code
     from getpass import getpass
 except ModuleNotFoundError:
@@ -282,58 +294,88 @@ def main_menu():
             / \\
         """
         )
+        if dev_mode:
+            print(rainbow_text("Dev Mode: ON"))
+            print('Sound +' if sound_enabled else "Sound -")
         print("[1] Start game")
         print("[2] Exit")
         print("[3] Contact developer")
         choice = input("Choose an option >>>")
         if choice == "1":
+            if sound_enabled:
+                choose_sound.play()
             game()
         elif choice == "2":
+            if sound_enabled:
+                choose_sound.play()
             print("Goodbye!")
             break
         elif choice == "3":
+            if sound_enabled:
+                choose_sound.play()
             clear()
             print("[1] Contact developer")
             print("[2] Enable developer mode")
             choice = input("Choose an option >>>")
             if choice == "1":
+                if sound_enabled:
+                    choose_sound.play()
                 webbrowser.open("t.me/shukolza", 2)
                 print("Or via email: shukolza@gmail.com")
                 input("Press Enter to continue...")
             elif choice == "2":
+                if sound_enabled and dev_code != "IMPORT_FAILED":
+                    choose_sound.play()
                 if dev_code == "IMPORT_FAILED":
+                    if sound_enabled:
+                        error_sound.play()
                     print("Developer mode is not available.")
                     input("Press Enter to continue...")
                 else:
                     code = getpass(">>>")
                     if code == dev_code:
                         dev_mode = True
+                        if sound_enabled:
+                            choose_sound.play()
                         print("Developer mode enabled.")
                         input("Press Enter to continue...")
                     else:
+                        if sound_enabled:
+                            error_sound.play()
                         print("Incorrect code.")
                         input("Press Enter to continue...")
             else:
+                if sound_enabled:
+                    error_sound.play()
                 print("Invalid choice. Please try again.")
                 input("Press Enter to continue...")
                 continue
         else:
+            if sound_enabled:
+                error_sound.play()
             print("Invalid choice. Please try again.")
             input("Press Enter to continue...")
 
 
 def game_over(correct_word: str) -> None:
     clear()
+    if sound_enabled:
+        game_over_sound.play()
     print(color_text("========== GAME OVER ==========", "red"))
     print(hangman_stadies_prints[-1])
     print()
     print(f"Correct word: {correct_word}")
     print()
     input("Press Enter to return to main menu...")
+    if sound_enabled:
+        game_over_sound.stop()
+        choose_sound.play()
 
 
 def winner(correct_word: str) -> None:
     clear()
+    if sound_enabled:
+        win_sound.play()
     print(color_text("""========== YOU WON ==========""", "green"))
     print()
     print(
@@ -348,6 +390,8 @@ def winner(correct_word: str) -> None:
     print(f"Correct word: {correct_word}")
     print()
     input("Press Enter to return to main menu...")
+    if sound_enabled:
+        choose_sound.play()
 
 
 def game():
@@ -376,6 +420,8 @@ def game():
         print(f"Excluded letters: \n{';'.join(excluded_letters)}")
         print()
         user_suggestion = input("Your suggestion? >>>").lower()
+        if sound_enabled:
+            choose_sound.play()
 
         if at_least_one_match(list(user_suggestion), excluded_letters):
             print("You already tried one of these letters!")
